@@ -38,9 +38,6 @@ jobs:
   deploy:
     runs-on: ubuntu-20.04
     needs: build
-    env:
-      user: ${{ secrets.DOCKER_USERNAME }}
-      pwd: ${{ secrets.DOCKER_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v2
@@ -51,11 +48,11 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: ${user}
-          password: ${pwd}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          passward: ${{ secrets.DOCKER_PASSWORD }}
       - name: Build and Docker image
         run: |
-          docker build -t ${user}/maven-github-app:${date +%s} .
+          docker build -t wache/maven-github-app:${date +%s} .
       - name: Push Docker image
         run: |
-          docker push ${user}/maven-github-app:${date +%s}
+          docker push wache/maven-github-app:${date +%s}
