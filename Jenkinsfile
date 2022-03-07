@@ -1,28 +1,58 @@
-pipeline { 
-    agent any  
-    tools { 
+pipeline {
+    agent any
+    tools {
         maven 'maven-3'
     }
     stages {
-        stage ('build-jar') {
+        stage("build-jar") {
             steps {
                 script {
-                    bat 'mvn package'
+                    echo "Building Java Application..."
+                    sh 'mvn package'
                 }
             }
         }
-        stage("build-image"){
+        stage("build-docker-image"){
             steps {
                 withCredentials([
                     usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'USER', passwordVariable: 'PWD')
                     ]) {
                         echo "Building the docker image..."
-                        bat "docker build -t $USER/maven-app:$BUILD_NUMBER ."
-                        bat 'echo %PWD% | docker login -u $USER --password-stdin'
-                        // bat echo ${PWD} | docker login -u $USER --password-stdin
-                        // bat "docker push $USERNAME/maven-app:$BUILD_NUMBER"
+                        sh "docker build -t $USER/maven-app:$BUILD_NUMBER ."
+                        sh "echo $PWD | docker login -u $USER --password-stdin"
+                        sh "docker push $USERNAME/maven-app:$BUILD_NUMBER"
                 }
             }
         }
     }
 }
+
+// --- Windows strategy
+// pipeline { 
+//     agent any  
+//     tools { 
+//         maven 'maven-3'
+//     }
+//     stages {
+//         stage ('build-jar') {
+//             steps {
+//                 script {
+//                     bat 'mvn package'
+//                 }
+//             }
+//         }
+//         stage("build-image"){
+//             steps {
+//                 withCredentials([
+//                     usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'USER', passwordVariable: 'PWD')
+//                     ]) {
+//                         echo "Building the docker image..."
+//                         bat "docker build -t $USER/maven-app:$BUILD_NUMBER ."
+//                         bat 'echo %PWD% | docker login -u $USER --password-stdin'
+//                         // bat echo ${PWD} | docker login -u $USER --password-stdin
+//                         // bat "docker push $USERNAME/maven-app:$BUILD_NUMBER"
+//                 }
+//             }
+//         }
+//     }
+// }
