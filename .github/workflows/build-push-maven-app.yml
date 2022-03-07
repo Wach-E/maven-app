@@ -55,4 +55,4 @@ jobs:
           docker build -t wache/maven-github-app:${{github.run_number}} .
       - name: Push Docker image
         run: |
-          docker push wache/maven-github-app:${date +%s}
+          docker push wache/maven-github-app:${{github.run_number}}
