@@ -1,0 +1,58 @@
+# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+
+name: Maven Package
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      jar_version: ${{ steps.bump.outputs.jar_version }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          java-version: "11"
+          distribution: "adopt"
+          architecture: x64
+      - name: Build a package
+        run: mvn package
+      - name: Temporarily save jar artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: jar-artifact
+          path: ${{ github.workspace }}/target/*.jar
+          retention-days: 1
+
+  deploy:
+    runs-on: ubuntu-20.04
+    needs: build
+    env:
+      user: ${{ secrets.DOCKER_USERNAME }}
+      pwd: ${{ secrets.DOCKER_PASSWORD }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/download-artifact@v1
+        with:
+          name: jar-artifact
+          path: target/
+      - name: Login to DockerHub
+        run: |
+          echo $pwd | docker login -u $user --password-stdin
+      - name: Build and Docker image
+          docker build -t $user/maven-github-app:${date +%s} .
+      - name: Push Docker image
+        run: |
+          docker push $user/maven-github-app:${date +%s}
