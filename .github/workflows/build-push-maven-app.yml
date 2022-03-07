@@ -53,7 +53,7 @@ jobs:
           echo $pwd | docker login -u $user --password-stdin
       - name: Build and Docker image
         run: |
-          docker build -t $user/maven-github-app:${date +%s} .
+          docker build -t ${user}/maven-github-app:${date +%s} .
       - name: Push Docker image
         run: |
-          docker push $user/maven-github-app:${date +%s}
+          docker push ${user}/maven-github-app:${date +%s}
