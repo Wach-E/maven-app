@@ -49,8 +49,10 @@ jobs:
           name: jar-artifact
           path: target/
       - name: Login to DockerHub
-        run: |
-          echo $pwd | docker login -u $user --password-stdin
+        uses: docker/login-action@v1
+        with:
+          username: ${user}
+          password: ${pwd}
       - name: Build and Docker image
         run: |
           docker build -t ${user}/maven-github-app:${date +%s} .
