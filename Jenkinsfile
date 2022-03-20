@@ -21,6 +21,7 @@ pipeline {
                         sh "docker build -t $USER/maven-app:$BUILD_NUMBER ."
                         sh "echo $PWD | docker login -u $USER --password-stdin"
                         sh "docker push $USER/maven-app:$BUILD_NUMBER"
+                        echo "Docker image deployed!!!"
                 }
             }
         }
